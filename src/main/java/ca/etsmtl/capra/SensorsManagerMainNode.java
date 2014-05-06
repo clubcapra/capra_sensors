@@ -18,8 +18,9 @@ import java.util.concurrent.TimeUnit;
 public class SensorsManagerMainNode extends AbstractNodeMain{
 
     public static void main(String[] args) throws Exception {
-
+//        RosRun.main(new String[]{Talker.class.getName()});
         RosRun.main(new String[]{SensorsManagerMainNode.class.getName()});
+
     }
 
     private final static String NODE_NAME = "/capra/sensors_manager";
@@ -33,7 +34,7 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
         super.onStart(connectedNode);
         Subscriber<std_msgs.String> subscriber = connectedNode.newSubscriber(TOPIC1, std_msgs.String._TYPE);
         final Log logger = connectedNode.getLog();
-        warningLightManager = new WarningLightManager(connectedNode, this);
+//        warningLightManager = new WarningLightManager(connectedNode, this);
 
         subscriber.addMessageListener(new MessageListener<std_msgs.String>() {
             @Override
