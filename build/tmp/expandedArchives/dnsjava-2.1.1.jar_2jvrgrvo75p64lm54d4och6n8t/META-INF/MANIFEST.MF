@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven Bundle Plugin
+Built-By: otsvinev
+Build-Jdk: 1.5.0_20
+Bundle-RequiredExecutionEnvironment: J2SE-1.4
+Bundle-License: http://www.dnsjava.org/README
+Import-Package: junit.framework,org.xbill.DNS,sun.net.spi.nameservice
+Bnd-LastModified: 1297804172224
+Export-Package: org.xbill.DNS;uses:="org.xbill.DNS.util",org.xbill.DNS
+ .spi;uses:="org.xbill.DNS,sun.net.spi.nameservice",org.xbill.DNS.util
+ s;uses:="junit.framework"
+Bundle-Version: 2.1.1
+Bundle-Description: dnsjava is an implementation of DNS in Java. It su
+ pports all defined record types (including the DNSSEC types), and unk
+ nown types. It can be used for queries, zone transfers, and dynamic u
+ pdates. It includes a cache which can be used by clients, and a minim
+ al implementation of a server. It supports TSIG authenticated message
+ s, partial DNSSEC verification, and EDNS0.
+Bundle-Name: dnsjava
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: dnsjava
+Tool: Bnd-1.15.0
+

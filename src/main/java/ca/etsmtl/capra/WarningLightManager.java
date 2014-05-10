@@ -19,7 +19,7 @@ public class WarningLightManager {
     private boolean isRunning;
     protected int DELAY = 1000;
     protected String OnCommand = "SET Lights ON",OffCommand = "SET Lights OFF";
-    private Communication communication;
+    private final Communication communication;
     private boolean isLightOn,isEStopOn = false; //isEstopOn is temporary (needs to be attached to a service)
 
     /**
@@ -28,22 +28,20 @@ public class WarningLightManager {
      * @param sensorsManagerMainNode
      * @throws SerialPortException
      */
-    public WarningLightManager(final ConnectedNode connectedNode, SensorsManagerMainNode sensorsManagerMainNode){
+    public WarningLightManager(final ConnectedNode connectedNode, SensorsManagerMainNode sensorsManagerMainNode, final Communication communication){
         ParameterTree parameterTree = connectedNode.getParameterTree();
+        this.communication = communication;
         this.connectedNode = connectedNode;
         this.logger = connectedNode.getLog();
         this.graphName = sensorsManagerMainNode.getDefaultNodeName().join(SensorsManagerMainNode.class.getSimpleName());
         Config config = new Config(logger);
         DELAY  = config.getInteger(graphName.join("FlashDelay"), parameterTree);
-        final String ip = config.getString(graphName.join("ip"), parameterTree);
-        final int port = config.getInteger(graphName.join("port"), parameterTree);
 
 
         Runnable rCheckEs = new Runnable() {
             @Override
             public void run() {
                 try {
-                    communication = new TCPCommunication(ip, port);
                     isLightOn = true;
                     isRunning = true; //TEMPO!!!
                     logger.info("isRunning = " + isRunning);

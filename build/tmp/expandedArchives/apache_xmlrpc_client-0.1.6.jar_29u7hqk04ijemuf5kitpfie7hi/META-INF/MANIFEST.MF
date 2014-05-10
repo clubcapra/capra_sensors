@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Export-Package: org.apache.xmlrpc.client;version="0.1.6";uses:="javax.
+ net.ssl,org.apache.commons.httpclient,org.apache.commons.httpclient.m
+ ethods,org.apache.xmlrpc,org.apache.xmlrpc.common,org.apache.xmlrpc.s
+ erializer,org.xml.sax",org.apache.xmlrpc.client.util;version="0.1.6";
+ uses:="org.apache.xmlrpc.client,org.apache.xmlrpc.common"
+Bundle-Version: 0.1.6
+Tool: Bnd-2.1.0.20130426-122213
+Bundle-Name: apache_xmlrpc_client
+Bnd-LastModified: 1383267986000
+Created-By: 1.7.0_25 (Oracle Corporation)
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.ros.rosjava_core.apache_xmlrpc_client
+Import-Package: javax.net,javax.net.ssl,org.apache.commons.httpclient;
+ version="[3.1,4)",org.apache.commons.httpclient.auth;version="[3.1,4)
+ ",org.apache.commons.httpclient.methods;version="[3.1,4)",org.apache.
+ commons.httpclient.params;version="[3.1,4)",org.apache.xmlrpc;version
+ ="[0.1,1)",org.apache.xmlrpc.common;version="[0.1,1)",org.apache.xmlr
+ pc.parser;version="[0.1,1)",org.apache.xmlrpc.serializer;version="[0.
+ 1,1)",org.apache.xmlrpc.util;version="[0.1,1)",org.xml.sax
+

@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Export-Package: dynamic_reconfigure;version="1.5.34";uses:="org.ros.in
+ ternal.message"
+Bundle-Version: 1.5.34
+Tool: Bnd-2.1.0.20130426-122213
+Bundle-Name: dynamic_reconfigure
+Bnd-LastModified: 1388019701000
+Created-By: 1.7.0_25 (Oracle Corporation)
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.ros.rosjava_messages.dynamic_reconfigure
+Import-Package: org.ros.internal.message
+

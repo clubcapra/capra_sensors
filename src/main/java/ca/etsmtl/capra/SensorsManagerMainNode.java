@@ -7,16 +7,20 @@ import org.ros.node.AbstractNodeMain;
 import org.ros.node.ConnectedNode;
 import org.ros.node.Node;
 import org.ros.namespace.GraphName;
+import org.ros.node.parameter.ParameterTree;
 import org.ros.node.topic.Subscriber;
 import org.ros.node.topic.SubscriberListener;
-
+import org.ros.namespace.GraphName;
+import java.net.ConnectException;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Created by guillaumechevalier on 2014-04-18.
  */
 public class SensorsManagerMainNode extends AbstractNodeMain{
-
+    private Communication communication;
+    private GraphName graphName = null;
+    private Log logger;
     public static void main(String[] args) throws Exception {
 //        RosRun.main(new String[]{Talker.class.getName()});
         RosRun.main(new String[]{SensorsManagerMainNode.class.getName()});
@@ -27,14 +31,23 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
     private final static String TOPIC1 = "chatter";
     private WarningLightManager warningLightManager;
 
-//    private Logger logManager = LogManager.getLogger();
+
 
     @Override
     public void onStart(final ConnectedNode connectedNode) {
         super.onStart(connectedNode);
+        ParameterTree parameterTree = connectedNode.getParameterTree();
+        this.graphName = this.getDefaultNodeName().join(SensorsManagerMainNode.class.getSimpleName());
+
+        this.logger = connectedNode.getLog();
+        Config config = new Config(logger);
+        final String ip = config.getString(graphName.join("ip"), parameterTree);
+        final int port = config.getInteger(graphName.join("port"), parameterTree);
+        communication = new TCPCommunication(ip, port);
         Subscriber<std_msgs.String> subscriber = connectedNode.newSubscriber(TOPIC1, std_msgs.String._TYPE);
         final Log logger = connectedNode.getLog();
-//        warningLightManager = new WarningLightManager(connectedNode, this);
+        warningLightManager = new WarningLightManager(connectedNode, this, communication);
+
 
         subscriber.addMessageListener(new MessageListener<std_msgs.String>() {
             @Override

@@ -1,0 +1,48 @@
+Manifest-Version: 1.0
+Export-Package: org.apache.commons.net;version="2.0.0";uses:="javax.ne
+ t",org.apache.commons.net.bsd;version="2.0.0";uses:="org.apache.commo
+ ns.net",org.apache.commons.net.chargen;version="2.0.0";uses:="org.apa
+ che.commons.net",org.apache.commons.net.daytime;version="2.0.0";uses:
+ ="org.apache.commons.net",org.apache.commons.net.discard;version="2.0
+ .0";uses:="org.apache.commons.net",org.apache.commons.net.echo;versio
+ n="2.0.0";uses:="org.apache.commons.net.discard",org.apache.commons.n
+ et.finger;version="2.0.0";uses:="org.apache.commons.net",org.apache.c
+ ommons.net.ftp;version="2.0.0";uses:="javax.net,javax.net.ssl,org.apa
+ che.commons.net,org.apache.commons.net.ftp.parser",org.apache.commons
+ .net.ftp.parser;version="2.0.0";uses:="org.apache.commons.net.ftp",or
+ g.apache.commons.net.io;version="2.0.0",org.apache.commons.net.nntp;v
+ ersion="2.0.0";uses:="org.apache.commons.net",org.apache.commons.net.
+ ntp;version="2.0.0";uses:="org.apache.commons.net",org.apache.commons
+ .net.pop3;version="2.0.0";uses:="org.apache.commons.net",org.apache.c
+ ommons.net.smtp;version="2.0.0";uses:="org.apache.commons.net",org.ap
+ ache.commons.net.telnet;version="2.0.0";uses:="org.apache.commons.net
+ ",org.apache.commons.net.tftp;version="2.0.0";uses:="org.apache.commo
+ ns.net",org.apache.commons.net.time;version="2.0.0";uses:="org.apache
+ .commons.net",org.apache.commons.net.util;version="2.0.0",org.apache.
+ commons.net.whois;version="2.0.0";uses:="org.apache.commons.net.finge
+ r"
+Implementation-Title: Commons Net
+Built-By: niklas
+Tool: Bundlor 1.0.0.CI-B166
+Implementation-Vendor: The Apache Software Foundation
+Implementation-Vendor-Id: org.apache
+Specification-Title: Commons Net
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-SymbolicName: com.springsource.org.apache.commons.net
+X-Compile-Target-JDK: 1.5
+Implementation-Version: 2.0
+Specification-Vendor: The Apache Software Foundation
+Bundle-Name: Apache Commons Net
+Created-By: 1.6.0_10 (Sun Microsystems Inc.)
+X-Compile-Source-JDK: 1.5
+Bundle-Vendor: SpringSource
+Bundle-Version: 2.0.0
+Build-Jdk: 1.6.0_10
+Bundle-ManifestVersion: 2
+Bundle-Description: A collection of network utilities and protocol imp
+ lementations.
+Specification-Version: 2.0
+Import-Package: javax.net;version="0",javax.net.ssl;version="0"
+Bundle-DocURL: http://commons.apache.org/net/
+Archiver-Version: Plexus Archiver
+

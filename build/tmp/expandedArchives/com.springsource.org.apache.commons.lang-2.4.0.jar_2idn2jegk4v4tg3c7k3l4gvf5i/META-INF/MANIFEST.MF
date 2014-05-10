@@ -1,0 +1,33 @@
+Manifest-Version: 1.0
+Export-Package: org.apache.commons.lang;version="2.4.0",org.apache.com
+ mons.lang.builder;version="2.4.0",org.apache.commons.lang.enum;versio
+ n="2.4.0",org.apache.commons.lang.enums;version="2.4.0",org.apache.co
+ mmons.lang.exception;version="2.4.0",org.apache.commons.lang.math;ver
+ sion="2.4.0",org.apache.commons.lang.mutable;version="2.4.0",org.apac
+ he.commons.lang.text;version="2.4.0",org.apache.commons.lang.time;ver
+ sion="2.4.0"
+Implementation-Title: Commons Lang
+Implementation-Version: 2.4
+Bundle-Classpath: .
+Built-By: hen
+Specification-Vendor: The Apache Software Foundation
+Bundle-Name: Apache Commons Lang
+Created-By: 1.4.2_16 (Apple Computer, Inc.)
+X-Compile-Source-JDK: 1.3
+Implementation-Vendor: The Apache Software Foundation
+Bundle-Vendor: SpringSource
+Implementation-Vendor-Id: org.apache
+Build-Jdk: 1.4.2_16
+Bundle-Version: 2.4.0
+Specification-Title: Commons Lang
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-Description: Commons Lang, a package of Java utility classes fo
+ r the        classes that are in java.lang's hierarchy, or are consid
+ ered to be so        standard as to justify existence in java.lang.
+Bundle-DocURL: http://commons.apache.org/lang/
+Bundle-SymbolicName: com.springsource.org.apache.commons.lang
+Specification-Version: 2.4
+Archiver-Version: Plexus Archiver
+X-Compile-Target-JDK: 1.2
+
