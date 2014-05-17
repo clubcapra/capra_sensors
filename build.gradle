@@ -1,7 +1,13 @@
 apply plugin: 'java'
+apply plugin: 'application'
 
 sourceCompatibility = 1.7
-version = '1.0'
+targetCompatibility = 1.7
+
+version = '0.0.1-SNAPSHOT'
+group = 'ros.capra'
+
+mainClassName = 'org.ros.RosRun'
 
 repositories {
     mavenCentral()
@@ -14,29 +20,32 @@ repositories {
     }
 }
 
+task deployApp(dependsOn: 'installApp') << {
+    File binDir = new File(project.projectDir, '/bin')
+    if (! binDir.isDirectory()) {
+        println "Creating $binDir directory"
+        binDir.mkdirs()
+    }
+    File link = new File(binDir,"execute")
+    File target = new File(project.projectDir, "build/install/$project.name/bin/$project.name")
+    println "Creating symlink from $link.absolutePath to $target.absolutePath"
+    ant.symlink(link: link.absolutePath, resource: target.absolutePath)
+}
+
+run {
+    args 'ca.etsmtl.capra.ImuMainNode'
+}
+
 dependencies {
     compile 'org.ros.rosjava_core:rosjava:0.1.+'
-
     compile 'org.ros.rosjava_messages:sensor_msgs:1.10.2'
     compile 'org.ros.rosjava_messages:geometry_msgs:1.10.2'
     compile 'org.ros.rosjava_messages:dynamic_reconfigure:1.5.34'
-
     compile 'org.ros.rosjava_bootstrap:gradle_plugins:0.1.+'
-
     compile 'org.apache.logging.log4j:log4j-api:2.0-beta9'
     compile 'org.apache.logging.log4j:log4j-core:2.0-beta9'
-
     compile 'org.reflections:reflections:0.9.9-RC1'
     compile 'ca.etsmtl.capra:3DMGX1-imu:1.3-SNAPSHOT'
-
-//    compile files('libs/jssc-2.6.jar','libs/3DMGX1-imu-1.3-20140120.162909-1.jar')
-
+    compile 'ca.etsmtl.capra:capra_msgs:0.0.0'
     testCompile group: 'junit', name: 'junit', version: '4.11'
-}
-
-jar {
-    from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-    manifest {
-        attributes 'Main-Class': 'ca.etsmtl.capra.SensorsManagerMainNode'
-    }
 }

@@ -13,6 +13,9 @@ import org.ros.node.topic.SubscriberListener;
 import org.ros.namespace.GraphName;
 import java.net.ConnectException;
 import java.util.concurrent.TimeUnit;
+import capra_msgs.ToggleLight;
+import capra_msgs.ToggleLightRequest;
+import capra_msgs.ToggleLightResponse;
 
 /**
  * Created by guillaumechevalier on 2014-04-18.
