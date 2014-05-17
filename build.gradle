@@ -33,7 +33,7 @@ task deployApp(dependsOn: 'installApp') << {
 }
 
 run {
-    args 'ca.etsmtl.capra.ImuMainNode'
+    args 'ca.etsmtl.capra.SensorsManagerMainNode'
 }
 
 dependencies {
