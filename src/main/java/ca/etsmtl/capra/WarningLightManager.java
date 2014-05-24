@@ -46,7 +46,7 @@ public class WarningLightManager {
                     isRunning = true; //TEMPO!!!
                     logger.info("isRunning = " + isRunning);
                     while (isRunning) {
-                        isEStopOn = false; //TEMPO!
+                        //isEStopOn = false; //TEMPO!
                         if (isEStopOn) {
                             communication.sendCommand(OffCommand);
                         } else {
@@ -57,8 +57,9 @@ public class WarningLightManager {
                                 isLightOn = true;
                                 communication.sendCommand(OffCommand);
                             }
+                            Thread.sleep(DELAY);
                         }
-                        Thread.sleep(DELAY);
+
 
                     }
                 } catch (InterruptedException ex) {
