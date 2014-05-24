@@ -29,14 +29,12 @@ import capra_msgs.ModuleToggleResponse;
  * Created by guillaumechevalier on 2014-04-18.
  */
 public class SensorsManagerMainNode extends AbstractNodeMain{
-    private Communication communication;
+    private Communication communication = null;
     private GraphName graphName = null;
     private Log logger;
     private final String NODE_NAME = "sensors_server";
     public static void main(String[] args) throws Exception {
-//        RosRun.main(new String[]{Talker.class.getName()});
         RosRun.main(new String[]{SensorsManagerMainNode.class.getName()});
-
     }
 
 
@@ -55,10 +53,15 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
 
         final String ip = config.getString(graphName.join("ip"), parameterTree);
         final int port = config.getInteger(graphName.join("port"), parameterTree);
-        //communication = new TCPCommunication(ip, port);
+//        do{
+//            try {
+                communication = new TCPCommunication(ip, port);
+//            }catch(Exception e){e.printStackTrace();}
+//        }while(communication == null);
+
 
         final Log logger = connectedNode.getLog();
-        //warningLightManager = new WarningLightManager(connectedNode, this, communication);
+        warningLightManager = new WarningLightManager(connectedNode, this, communication);
 
         initToggles(connectedNode);
 
@@ -82,7 +85,7 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
 
 
     private void initToggles(ConnectedNode connectedNode){
-        ServiceServer<ToggleLightRequest, ToggleLightResponse> Lightserver =
+        ServiceServer<ToggleLightRequest, ToggleLightResponse> LightServer =
                 connectedNode.newServiceServer("~light", ToggleLight._TYPE,
                         new ServiceResponseBuilder<ToggleLightRequest, ToggleLightResponse>() {
                             @Override
@@ -90,21 +93,21 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
                                 System.out.println("getOn = "+request.getOn());
                             }
                         });
-        ServiceServer<ModuleToggleRequest, ModuleToggleResponse> Moduleserver =
+        ServiceServer<ModuleToggleRequest, ModuleToggleResponse> ModuleServer =
                 connectedNode.newServiceServer("~module", ModuleToggle._TYPE,
                         new ServiceResponseBuilder<ModuleToggleRequest, ModuleToggleResponse>() {
                             @Override
                             public void build(ModuleToggleRequest request, ModuleToggleResponse response) throws ServiceException {
-//                                try {
-//                                    System.out.println("getModule = " + request.getModule());
-//                                    System.out.println("getOn = " + request.getOn());
-//                                    if (request.getOn())
-//                                        communication.sendCommand("SET " + request.getModule() + " ON");
-//                                    else
-//                                        communication.sendCommand("SET " + request.getModule() + " OFF");
-//                                }catch(Exception e){
-//
-//                                }
+                                try {
+                                    System.out.println("getModule = " + request.getModule());
+                                    System.out.println("getOn = " + request.getOn());
+                                    if (request.getOn())
+                                        communication.sendCommand("SET " + request.getModule() + " ON");
+                                    else
+                                        communication.sendCommand("SET " + request.getModule() + " OFF");
+                                }catch(Exception e){
+
+                                }
                             }
 
 
