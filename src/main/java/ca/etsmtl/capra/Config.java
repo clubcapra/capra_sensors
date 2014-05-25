@@ -13,7 +13,7 @@ import java.util.Properties;
  */
 public class Config {
     private final Log logger;
-    private final static URL filePath = Config.class.getResource("warningLight.properties");
+    private final static URL filePath = Config.class.getResource("sensorsManager.properties");
     private final Properties properties = new Properties();
 
     public Config(Log logger) {

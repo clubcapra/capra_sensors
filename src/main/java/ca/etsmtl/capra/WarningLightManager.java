@@ -16,11 +16,11 @@ public class WarningLightManager {
     private final Log logger;
     private final ConnectedNode connectedNode;
     private final GraphName graphName;
-    private boolean isRunning;
+    private boolean isRunning = false;
     protected int DELAY = 1000;
     protected String OnCommand = "SET Lights ON",OffCommand = "SET Lights OFF";
     private final Communication communication;
-    private boolean isLightOn,isEStopOn = false; //isEstopOn is temporary (needs to be attached to a service)
+    private boolean isLightOn = true;
 
     /**
      *
@@ -43,13 +43,9 @@ public class WarningLightManager {
             public void run() {
                 try {
                     isLightOn = true;
-                    isRunning = true; //TEMPO!!!
                     logger.info("isRunning = " + isRunning);
-                    while (isRunning) {
-                        //isEStopOn = false; //TEMPO!
-                        if (isEStopOn) {
-                            communication.sendCommand(OffCommand);
-                        } else {
+                    while (true) {
+                        while(isRunning){
                             if (isLightOn) {
                                 isLightOn = false;
                                 communication.sendCommand(OnCommand);
@@ -59,8 +55,6 @@ public class WarningLightManager {
                             }
                             Thread.sleep(DELAY);
                         }
-
-
                     }
                 } catch (InterruptedException ex) {
                 } catch (UnknownHostException e) {
@@ -78,12 +72,10 @@ public class WarningLightManager {
         return isLightOn;
     }
     public void setFlashingState(boolean flashingState){
-        isEStopOn = flashingState;
+        isRunning = flashingState;
     }
 
-    /**
-     * Temp fix for closing Thread (listener to implement eventually)
-     */
+
     public void close(){
         isRunning = false;
         try {

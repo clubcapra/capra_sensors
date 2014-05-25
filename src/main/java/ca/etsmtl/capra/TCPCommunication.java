@@ -38,7 +38,8 @@ public class TCPCommunication implements Communication {
 
         // closing the socket
         socket.close();
-
         return sb.toString();
     }
+
+
 }
