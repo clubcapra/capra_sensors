@@ -20,7 +20,8 @@ import capra_msgs.ModuleToggle;
 import capra_msgs.ModuleToggleRequest;
 import capra_msgs.ModuleToggleResponse;
 import capra_msgs.AiStatus;
-
+import capra_msgs.SensorsTelemetry;
+import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -28,11 +29,15 @@ import java.util.ArrayList;
  * Created by guillaumechevalier on 2014-04-18.
  */
 public class SensorsManagerMainNode extends AbstractNodeMain{
-    private ArrayList<String> sensors;
+    private String[] sensorsList = new String[]{"Fan","IMU","Camera","GPS","Switch","Lights",
+                                        "RangeFinder","Tension","Current","Temperature",
+                                        "EstopManual","EstopRemote","Mode"};
+    ArrayList sensorsListStatus = new ArrayList(13);
     private Communication communication = null;
     private GraphName graphName = null;
     private Log logger;
-    final Publisher<SensorsStatus> publisher;
+    //final Publisher<SensorsStatus> publisher;
+    //private SensorsStatus sensorsStatus;
     private Subscriber<AiStatus> subscriber;
     private final CancellableLoop   cancellableLoopWatchdog,
                                     cancellableLoopSensorsStateUpdate,
@@ -41,7 +46,7 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
     private Config config;
     private ParameterTree parameterTree;
 
-    public SensorsManagerMainNode() {           //AI watchdog
+    public SensorsManagerMainNode() {                       /*AI watchdog*/
         cancellableLoopWatchdog = new
                 CancellableLoop() {
                     @Override
@@ -54,19 +59,26 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
                         }
                     }
                 };
-        cancellableLoopSensorsStateUpdate = new
+        cancellableLoopSensorsStateUpdate = new             /*Update sensorsTelemetry*/
                 CancellableLoop() {
                     @Override
                     protected void loop() throws InterruptedException {
 
-                        Thread.sleep(config.getInteger(graphName.join("SENSORS_STATE_UPDATE_TIMER"), parameterTree));
-                    }
+                        }
+
                 };
-        cancellableLoopSensorsStateRetriever = new
+        cancellableLoopSensorsStateRetriever = new          /*Retrieves data from the Sensors*/
                 CancellableLoop() {
                     @Override
                     protected void loop() throws InterruptedException {
-
+                        for(int i = 0;i<sensorsList.length;i++) {
+                            try {
+                                sensorsListStatus.set(i,communication.sendCommand("GET "+sensorsList[i]));
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            Thread.sleep(config.getInteger(graphName.join("SENSORS_STATE_UPDATE_TIMER"), parameterTree));
+                        }
                     }
                 };
 
@@ -84,8 +96,8 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
         super.onStart(connectedNode);
         parameterTree = connectedNode.getParameterTree();
         this.graphName = this.getDefaultNodeName().join(SensorsManagerMainNode.class.getSimpleName());
-        publisher = connectedNode.newPublisher(config.getString(graphName.join("TOPIC_SENSORS_STATUS"),parameterTree),
-                                                SensorsStatus._TYPE);
+        //publisher = connectedNode.newPublisher(config.getString(graphName.join("TOPIC_SENSORS_STATUS"),parameterTree),
+        //                                        SensorsTelemetry._TYPE);
         subscriber = connectedNode.newSubscriber(config.getString(graphName.join("TOPIC_LIGHT_STATUS"),parameterTree),
                                                 AiStatus._TYPE);
         /*logger*/
@@ -101,8 +113,12 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
 //            }catch(Exception e){e.printStackTrace();}
 //        }while(communication == null);
 
-
         final Log logger = connectedNode.getLog();
+
+        new SensorsManagerMainNode();
+        connectedNode.executeCancellableLoop(cancellableLoopWatchdog);
+        connectedNode.executeCancellableLoop(cancellableLoopSensorsStateRetriever);
+        connectedNode.executeCancellableLoop(cancellableLoopSensorsStateUpdate);
         warningLightManager = new WarningLightManager(connectedNode, this, communication);
 
         initToggles(connectedNode);
