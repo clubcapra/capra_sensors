@@ -1,0 +1,3 @@
+[submodule "SensorsServer"]
+	path = SensorsServer
+	url = https://github.com/clubcapra/SensorsServer.git
