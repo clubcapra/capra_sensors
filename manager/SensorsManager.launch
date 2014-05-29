@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="capra_sensors" name="manager" type="manager" args="ca.etsmtl.capra.sensors.manager.SensorsManagerMainNode" output="screen">
+    </node>
+</launch>

@@ -1,4 +1,0 @@
-<launch>
-    <node pkg="rosjava" name="capra_sensors_manager" type="capra_sensors_manager" args="ca.etsmtl.capra.SensorsManagerMainNode" output="screen">
-    </node>
-</launch>

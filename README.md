@@ -1,2 +1,2 @@
-capra_sensors_manager
+capra_sensors
 =====================
