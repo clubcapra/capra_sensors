@@ -22,7 +22,11 @@ import capra_msgs.ModuleToggleResponse;
 import capra_msgs.AiStatus;
 import capra_msgs.SensorsTelemetry;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.ros.node.topic.Publisher;
 
 
 /**
@@ -32,30 +36,37 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
     private String[] sensorsList = new String[]{"Fan","IMU","Camera","GPS","Switch","Lights",
                                         "RangeFinder","Tension","Current","Temperature",
                                         "EstopManual","EstopRemote","Mode"};
-    ArrayList sensorsListStatus = new ArrayList(13);
+    private final String NODE_NAME = "/capra/sensors_manager";
+    private HashMap<String,String> sensorsListStatus = new HashMap<String,String>();
     private Communication communication = null;
     private GraphName graphName = null;
     private Log logger;
-    //final Publisher<SensorsStatus> publisher;
-    //private SensorsStatus sensorsStatus;
+    private Publisher<SensorsTelemetry> publisher = null;
     private Subscriber<AiStatus> subscriber;
+    private SensorsTelemetry sensorsTelemetry;
     private final CancellableLoop   cancellableLoopWatchdog,
                                     cancellableLoopSensorsStateUpdate,
                                     cancellableLoopSensorsStateRetriever;
     private boolean watchdog = false;
     private Config config;
     private ParameterTree parameterTree;
+    private int posSensorArray = 0;
 
     public SensorsManagerMainNode() {                       /*AI watchdog*/
-        cancellableLoopWatchdog = new
+                cancellableLoopWatchdog = new
                 CancellableLoop() {
                     @Override
                     protected void loop() throws InterruptedException {
                         Thread.sleep(config.getInteger(graphName.join("WATCHDOG_TIMER"), parameterTree));
                         if (watchdog){
                             watchdog = false;
+                            if(!(sensorsListStatus.get(sensorsList[5]) == "ON")){                      //Not flashing?
+                                warningLightManager.setFlashingState(true);     //Flashing
+                            }
                         }else{
-
+                            if(sensorsListStatus.get(sensorsList[5]) == "ON"){
+                                warningLightManager.setFlashingState(false);
+                            }
                         }
                     }
                 };
@@ -63,9 +74,12 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
                 CancellableLoop() {
                     @Override
                     protected void loop() throws InterruptedException {
-
+                            //sensorsTelemetry = populateMessage(sensorsTelemetry);
+                            try {
+                                sensorsTelemetry = populateMessage(sensorsTelemetry);
+                            }catch (Exception e){}
+                            Thread.sleep(config.getInteger(graphName.join("SENSORS_STATE_UPDATE_TIMER"), parameterTree));
                         }
-
                 };
         cancellableLoopSensorsStateRetriever = new          /*Retrieves data from the Sensors*/
                 CancellableLoop() {
@@ -73,11 +87,12 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
                     protected void loop() throws InterruptedException {
                         for(int i = 0;i<sensorsList.length;i++) {
                             try {
-                                sensorsListStatus.set(i,communication.sendCommand("GET "+sensorsList[i]));
+                                String[] str = communication.sendCommand("GET "+sensorsList[i]).split(" ");
+                                sensorsListStatus.put(str[0],str[1]);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-                            Thread.sleep(config.getInteger(graphName.join("SENSORS_STATE_UPDATE_TIMER"), parameterTree));
+                            Thread.sleep(config.getInteger(graphName.join("SENSORS_STATE_RETRIEVAL_TIMER"), parameterTree));
                         }
                     }
                 };
@@ -95,14 +110,16 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
     public void onStart(final ConnectedNode connectedNode) {
         super.onStart(connectedNode);
         parameterTree = connectedNode.getParameterTree();
-        this.graphName = this.getDefaultNodeName().join(SensorsManagerMainNode.class.getSimpleName());
-        //publisher = connectedNode.newPublisher(config.getString(graphName.join("TOPIC_SENSORS_STATUS"),parameterTree),
-        //                                        SensorsTelemetry._TYPE);
-        subscriber = connectedNode.newSubscriber(config.getString(graphName.join("TOPIC_LIGHT_STATUS"),parameterTree),
-                                                AiStatus._TYPE);
         /*logger*/
         this.logger = connectedNode.getLog();
         config = new Config(logger);
+        this.graphName = this.getDefaultNodeName().join(SensorsManagerMainNode.class.getSimpleName());
+        publisher = connectedNode.newPublisher(config.getString(graphName.join("TOPIC_SENSORS_STATUS"),parameterTree),
+                SensorsTelemetry._TYPE);
+        subscriber = connectedNode.newSubscriber(config.getString(graphName.join("TOPIC_LIGHT_STATUS"),parameterTree),
+                                                AiStatus._TYPE);
+
+
 
         /*Tries to connect until it works.*/
         final String ip = config.getString(graphName.join("ip"), parameterTree);
@@ -113,7 +130,7 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
 //            }catch(Exception e){e.printStackTrace();}
 //        }while(communication == null);
 
-        final Log logger = connectedNode.getLog();
+        logger = connectedNode.getLog();
 
         new SensorsManagerMainNode();
         connectedNode.executeCancellableLoop(cancellableLoopWatchdog);
@@ -137,7 +154,7 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
 
     @Override
     public GraphName getDefaultNodeName() {
-        return GraphName.of(config.getString(graphName.join("NODE_NAME"),parameterTree));
+        return GraphName.of(NODE_NAME);
     }
 
 
@@ -147,7 +164,7 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
                         new ServiceResponseBuilder<ToggleLightRequest, ToggleLightResponse>() {
                             @Override
                             public void build(ToggleLightRequest request, ToggleLightResponse response) throws ServiceException {
-                                warningLightManager.setFlashingState(request.getOn());
+                                   warningLightManager.toggleLight(request.getOn());
                             }
                         });
         ServiceServer<ModuleToggleRequest, ModuleToggleResponse> ModuleServer =
@@ -175,6 +192,23 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
             }
         });
     }
+
+    private SensorsTelemetry populateMessage(SensorsTelemetry st){
+        st = publisher.newMessage();
+        st.setFan(sensorsListStatus.get(sensorsList[0]) == "ON");
+        st.setIMU(sensorsListStatus.get(sensorsList[1]) == "ON");
+        st.setCamera(sensorsListStatus.get(sensorsList[2]) == "ON");
+        st.setGPS(sensorsListStatus.get(sensorsList[3]) == "ON");
+        st.setSwitch(sensorsListStatus.get(sensorsList[4]) == "ON");
+        st.setSwitch(sensorsListStatus.get(sensorsList[5]) == "ON");
+        st.setRangeFinder(sensorsListStatus.get(sensorsList[6]) == "ON");
+        st.setTemperature(Float.parseFloat(sensorsListStatus.get(sensorsList[9])));
+        return st;
+    }
+
+//    new String[]{"Fan","IMU","Camera","GPS","Switch","Lights",
+//            "RangeFinder","Tension","Current","Temperature",
+//            "EstopManual","EstopRemote","Mode"};
 
 
 }

@@ -18,7 +18,7 @@ public class WarningLightManager {
     private final GraphName graphName;
     private boolean isRunning = false;
     protected int DELAY = 1000;
-    protected String OnCommand = "SET Lights ON",OffCommand = "SET Lights OFF";
+    private final String ONCOMMAND = "SET Lights ON",OFFCOMMAND = "SET Lights OFF";
     private final Communication communication;
     private boolean isLightOn = true;
 
@@ -48,10 +48,10 @@ public class WarningLightManager {
                         while(isRunning){
                             if (isLightOn) {
                                 isLightOn = false;
-                                communication.sendCommand(OnCommand);
+                                communication.sendCommand(ONCOMMAND);
                             } else {
                                 isLightOn = true;
-                                communication.sendCommand(OffCommand);
+                                communication.sendCommand(OFFCOMMAND);
                             }
                             Thread.sleep(DELAY);
                         }
@@ -74,12 +74,28 @@ public class WarningLightManager {
     public void setFlashingState(boolean flashingState){
         isRunning = flashingState;
     }
+    public boolean getFlashingState(){return isRunning;}
+    public void toggleLight(boolean b){
+        if(!isRunning){
+            try {
+                if (b)
+                    communication.sendCommand(ONCOMMAND);
+                else
+                    communication.sendCommand(OFFCOMMAND);
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
 
 
     public void close(){
         isRunning = false;
         try {
-            communication.sendCommand(OnCommand);
+            communication.sendCommand(ONCOMMAND);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
