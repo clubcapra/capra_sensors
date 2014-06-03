@@ -25,7 +25,6 @@ public class WarningLightManager {
      *
      * @param connectedNode
      * @param sensorsManagerMainNode
-     * @throws SerialPortException
      */
     public WarningLightManager(final ConnectedNode connectedNode, SensorsManagerMainNode sensorsManagerMainNode, final Communication communication){
         ParameterTree parameterTree = connectedNode.getParameterTree();

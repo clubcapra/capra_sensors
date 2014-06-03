@@ -32,9 +32,9 @@ import org.ros.node.topic.Publisher;
  */
 public class SensorsManagerMainNode extends AbstractNodeMain{
     private String[] sensorsList = new String[]{"Fan","IMU","Camera","GPS","Switch","Lights",
-                                        "RangeFinder","Tension","Current","Temperature",
-                                        "EstopManual","EstopRemote","Mode"};
-    private final String NODE_NAME = "/capra/sensors/manager";
+            "RangeFinder","Tension","Current","Temperature",
+            "EstopManual","EstopRemote","Mode"};
+    private final String NODE_NAME = "/capra/sensors_manager";
     private HashMap<String,String> sensorsListStatus = new HashMap<String,String>();
     private Communication communication = null;
     private GraphName graphName = null;
@@ -43,23 +43,23 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
     private Subscriber<AiStatus> subscriber;
     private SensorsTelemetry sensorsTelemetry;
     private final CancellableLoop   cancellableLoopWatchdog,
-                                    cancellableLoopSensorsStateUpdate,
-                                    cancellableLoopSensorsStateRetriever;
+            cancellableLoopSensorsStateUpdate,
+            cancellableLoopSensorsStateRetriever;
     private boolean watchdog = false;
     private Config config;
     private ParameterTree parameterTree;
     private int posSensorArray = 0;
 
     public SensorsManagerMainNode() {                       /*AI watchdog*/
-                cancellableLoopWatchdog = new
+        cancellableLoopWatchdog = new
                 CancellableLoop() {
                     @Override
                     protected void loop() throws InterruptedException {
                         Thread.sleep(config.getInteger(graphName.join("WATCHDOG_TIMER"), parameterTree));
                         if (watchdog){
                             watchdog = false;
-                            if(!(sensorsListStatus.get(sensorsList[5]) == "ON")){                      //Not flashing?
-                                warningLightManager.setFlashingState(true);     //Flashing
+                            if(!(sensorsListStatus.get(sensorsList[5]) == "ON")){       //Not flashing?
+                                warningLightManager.setFlashingState(true);             //Flashing
                             }
                         }else{
                             if(sensorsListStatus.get(sensorsList[5]) == "ON"){
@@ -72,12 +72,12 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
                 CancellableLoop() {
                     @Override
                     protected void loop() throws InterruptedException {
-                            //sensorsTelemetry = populateMessage(sensorsTelemetry);
-                            try {
-                                sensorsTelemetry = populateMessage(sensorsTelemetry);
-                            }catch (Exception e){}
-                            Thread.sleep(config.getInteger(graphName.join("SENSORS_STATE_UPDATE_TIMER"), parameterTree));
-                        }
+                        try {
+                            sensorsTelemetry = populateMessage(sensorsTelemetry);
+                            publisher.publish(sensorsTelemetry);
+                        }catch (Exception e){e.printStackTrace();}
+                        Thread.sleep(config.getInteger(graphName.join("SENSORS_STATE_UPDATE_TIMER"), parameterTree));
+                    }
                 };
         cancellableLoopSensorsStateRetriever = new          /*Retrieves data from the Sensors*/
                 CancellableLoop() {
@@ -86,7 +86,8 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
                         for(int i = 0;i<sensorsList.length;i++) {
                             try {
                                 String[] str = communication.sendCommand("GET "+sensorsList[i]).split(" ");
-                                sensorsListStatus.put(str[0],str[1]);
+                                logger.info("0 = "+ str[0] + " 1 = "+ str[1]);
+                                sensorsListStatus.put(str[0],str[1].trim());
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -115,7 +116,7 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
         publisher = connectedNode.newPublisher(config.getString(graphName.join("TOPIC_SENSORS_STATUS"),parameterTree),
                 SensorsTelemetry._TYPE);
         subscriber = connectedNode.newSubscriber(config.getString(graphName.join("TOPIC_LIGHT_STATUS"),parameterTree),
-                                                AiStatus._TYPE);
+                AiStatus._TYPE);
 
 
 
@@ -124,7 +125,7 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
         final int port = config.getInteger(graphName.join("port"), parameterTree);
 //        do{
 //            try {
-                communication = new TCPCommunication(ip, port);
+        communication = new TCPCommunication(ip, port);
 //            }catch(Exception e){e.printStackTrace();}
 //        }while(communication == null);
 
@@ -162,7 +163,7 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
                         new ServiceResponseBuilder<ToggleLightRequest, ToggleLightResponse>() {
                             @Override
                             public void build(ToggleLightRequest request, ToggleLightResponse response) throws ServiceException {
-                                   warningLightManager.toggleLight(request.getOn());
+                                warningLightManager.toggleLight(request.getOn());
                             }
                         });
         ServiceServer<ModuleToggleRequest, ModuleToggleResponse> ModuleServer =
@@ -193,14 +194,17 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
 
     private SensorsTelemetry populateMessage(SensorsTelemetry st){
         st = publisher.newMessage();
-        st.setFan(sensorsListStatus.get(sensorsList[0]) == "ON");
-        st.setIMU(sensorsListStatus.get(sensorsList[1]) == "ON");
-        st.setCamera(sensorsListStatus.get(sensorsList[2]) == "ON");
-        st.setGPS(sensorsListStatus.get(sensorsList[3]) == "ON");
-        st.setSwitch(sensorsListStatus.get(sensorsList[4]) == "ON");
-        st.setSwitch(sensorsListStatus.get(sensorsList[5]) == "ON");
-        st.setRangeFinder(sensorsListStatus.get(sensorsList[6]) == "ON");
+        st.setFan(sensorsListStatus.get(sensorsList[0]).equals("ON"));
+        st.setIMU(sensorsListStatus.get(sensorsList[1]).equals("ON"));
+        st.setCamera(sensorsListStatus.get(sensorsList[2]).equals("ON"));
+        st.setGPS(sensorsListStatus.get(sensorsList[3]).equals("ON"));
+        st.setSwitch(sensorsListStatus.get(sensorsList[4]).equals("ON"));
+        st.setLights(sensorsListStatus.get(sensorsList[5]).equals("ON"));
+        st.setRangeFinder(sensorsListStatus.get(sensorsList[6]).equals("ON"));
+        st.setTension(Float.parseFloat(sensorsListStatus.get(sensorsList[7])));
+        st.setCurrent(Float.parseFloat(sensorsListStatus.get(sensorsList[8])));
         st.setTemperature(Float.parseFloat(sensorsListStatus.get(sensorsList[9])));
+        st.setMode(sensorsListStatus.get(sensorsList[10]));
         return st;
     }
 
