@@ -83,7 +83,8 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
                 CancellableLoop() {
                     @Override
                     protected void loop() throws InterruptedException {
-                        for(int i = 0;i<sensorsList.length;i++) {
+                        for(int i = 0;i<sensorsList.length - 3;i++) {
+                            if(i == 7) i = 10;
                             try {
                                 String[] str = communication.sendCommand("GET "+sensorsList[i]).split(" ");
                                 logger.info("0 = "+ str[0] + " 1 = "+ str[1]);
@@ -92,6 +93,17 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
                                 e.printStackTrace();
                             }
                             Thread.sleep(config.getInteger(graphName.join("SENSORS_STATE_RETRIEVAL_TIMER"), parameterTree));
+
+                            for(int j = 7; j<10;j++){
+                                try {
+                                    String[] str = communication.sendCommand("GET "+sensorsList[j]).split(" ");
+                                    logger.info("0 = "+ str[0] + " 1 = "+ str[1]);
+                                    sensorsListStatus.put(str[0],str[1].trim());
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                Thread.sleep(config.getInteger(graphName.join("SENSORS_STATE_RETRIEVAL_TIMER"), parameterTree));
+                            }
                         }
                     }
                 };
@@ -208,9 +220,7 @@ public class SensorsManagerMainNode extends AbstractNodeMain{
         return st;
     }
 
-//    new String[]{"Fan","IMU","Camera","GPS","Switch","Lights",
-//            "RangeFinder","Tension","Current","Temperature",
-//            "EstopManual","EstopRemote","Mode"};
+
 
 
 }
